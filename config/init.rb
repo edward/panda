@@ -16,11 +16,11 @@ Merb::Config.use do |c|
   c[:session_store] = 'cookie'
 end
 
-# use_orm :activerecord
+use_orm :activerecord
 
 require "config" / "panda_init"
 
-dependencies 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender'
+dependencies 'mysql_db', 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender'
 
 # Not sure why dependencies won't load AWS::S3
 require 'aws/s3'
@@ -30,7 +30,7 @@ Merb::BootLoader.after_app_loads do
   # Panda specific
 
   unless Merb.environment == "test"
-    require "config" / "aws"
+    require "config" / "database_connect"
     require "config" / "mailer" # If you want notification and encoding errors to be sent to you as well as logged
   end
 

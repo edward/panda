@@ -1,5 +1,5 @@
-class User < SimpleDB::Base
-  set_domain Panda::Config[:sdb_users_domain]
+class User < MysqlDB::Base
+#  set_domain Panda::Config[:sdb_users_domain]
   properties :password, :email, :salt, :crypted_password, :api_key, :updated_at, :created_at
   attr_accessor :password, :password_confirmation
   
@@ -13,7 +13,7 @@ class User < SimpleDB::Base
   
   def self.authenticate(login, password)
     begin
-      u = self.find(login) # Login is the key of the SimpleDB object
+      u = self.find_by_login(login) # Login is the key of the SimpleDB object, find_by_username == alias for SimpleDB::find
     rescue Amazon::SDB::RecordNotFoundError
       return nil
     else

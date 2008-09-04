@@ -9,8 +9,7 @@ class Profiles < Application
     render
   end
 
-  def show
-    
+  def show   
     render
   end
 

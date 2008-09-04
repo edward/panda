@@ -1,3 +1,8 @@
+####### NOTE ########
+
+This is a work in progress to allow Panda to use a MySql database instead of SimpleDB. Do not use this in production, it's not close to being ready
+to be used in production.
+
 Panda is a Merb app which runs on a special EC2 instance to encode videos for you. Uploaded videos are stored on S3 with a small amount of info kept in SimpleDB. The REST API makes it easy to integrate user video uploading into your web application.
 
 How does Panda work?

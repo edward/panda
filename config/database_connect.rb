@@ -1,7 +1,12 @@
-SimpleDB::Base.establish_connection!(
-  :access_key_id     => Panda::Config[:access_key_id],
-  :secret_access_key => Panda::Config[:secret_access_key]
-)
+case Panda::Config[:database]
+  when :simpledb
+    SimpleDB::Base.establish_connection!(
+      :access_key_id     => Panda::Config[:access_key_id],
+      :secret_access_key => Panda::Config[:secret_access_key]
+    )
+  when :mysql
+    MysqlDB::Base.establish_connection!
+end
 
 AWS::S3::Base.establish_connection!(
   :access_key_id     => Panda::Config[:access_key_id],

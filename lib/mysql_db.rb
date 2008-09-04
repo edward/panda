@@ -1,10 +1,17 @@
-class SimpleDB
+require 'rubygems'
+require 'activerecord'
+class MysqlDB
   
-  class Base
+  class Base < ActiveRecord::Base
     attr_accessor :key, :attributes, :new_record
   
-    def self.establish_connection!(opts)
-      @@connection = Amazon::SDB::Base.new(opts[:access_key_id], opts[:secret_access_key])
+    def self.establish_connection!
+      @@connection = ActiveRecord::Base.establish_connection(
+                                  :adapter => "mysql",
+                                  :host => "localhost",
+                                  :username => "root",
+                                  :password => "",
+                                  :database => "panda_development")
     end
     
     def self.connection; @@connection; end
@@ -26,12 +33,6 @@ class SimpleDB
         class_eval "def #{p}; self.get('#{p}'); end"
         class_eval "def #{p}=(v); self.put('#{p}', v); end"
       end
-    end
-
-    def initialize(key=nil, multimap_or_hash=nil, new_record=true)
-      self.key = (key || UUID.new)
-      self.attributes = multimap_or_hash.nil? ? Amazon::SDB::Multimap.new : (multimap_or_hash.kind_of?(Hash) ? Amazon::SDB::Multimap.new(multimap_or_hash) : multimap_or_hash)
-      @new_record = new_record
     end
 
     def self.create(*values)
@@ -93,14 +94,10 @@ class SimpleDB
       item = self.class.domain.get_attributes(self.key)
       self.attributes = item.attributes
     end
-    
-    def self.find_by_login(key)  #Alias doesnt seem to want to work
-      self.find(key)
-    end
-    
-    def self.find(key)
-      self.new(key, self.domain.get_attributes(key).attributes, false)
-    end
+
+#    def self.find(*args)
+#      super
+#    end
     
     # TODO: support next token
     def self.query(expr="", query_options={})
@@ -111,4 +108,5 @@ class SimpleDB
       return result
     end
   end
+  
 end

@@ -15,7 +15,7 @@ private
     when "html"
       begin
         @user = User.find(session[:user_key]) if session[:user_key]
-      rescue Amazon::SDB::RecordNotFoundError
+      rescue #Amazon::SDB::RecordNotFoundError
         session[:user_key] = nil
         @user = nil
       end
