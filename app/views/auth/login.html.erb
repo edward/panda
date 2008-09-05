@@ -1,6 +1,12 @@
-<%= notice %>
-<% form_for :user, :action => "/login", :method => :post do %>
-	<p><%= text_control :login, :label => "Username" %></p>
-	<p><%= password_control :password, :label => "Password" %></p>
-	<%= submit_button "Login" %>
-<% end %>
+<%#= notice %>
+<%# form_for :video, :action => "/login", :method => :post do %>
+<%# form_tag do %>
+	<p><%#= text_control :login, :label => "Username" %></p>
+	<p><%#= password_control :password, :label => "Password" %></p>
+	<%#= submit_button "Login" %>
+<%# end %>
+<h1>Hello</h1>
+
+<%# form_tag url(:controller => "auth", :action => "login") do %>
+  <p><%#= text_control :login %>
+<%# end %>

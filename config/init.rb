@@ -16,11 +16,11 @@ Merb::Config.use do |c|
   c[:session_store] = 'cookie'
 end
 
-use_orm :activerecord
+#use_orm :activerecord
 
 require "config" / "panda_init"
 
-dependencies 'mysql_db', 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender'
+dependencies 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender', 'mysql_db'
 
 # Not sure why dependencies won't load AWS::S3
 require 'aws/s3'
