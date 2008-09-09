@@ -104,13 +104,18 @@ class MysqlDB
 #    end
     
     # TODO: support next token
-#    def self.query(expr="", query_options={})
-#      result = []
-#      self.domain.query(query_options.merge({:expr => expr})).each do |i|
-#        result << self.new(i.key, i.attributes, false)
-#      end
-#      return result
-#    end
+    def self.query(expr="", query_options={})
+      expr.gsub!(/\[|\]/,'')
+      find(:all, :conditions => expr, :limit => query_options[:max_results])
+    end
   end
   
 end
+
+#def self.recent_videos
+#  self.query("['status' = 'original']", :max_results => 10, :load_attrs => true)
+#end
+
+#def self.recent_encodings
+#  self.query("['status' = 'success']", :max_results => 10, :load_attrs => true)
+#end

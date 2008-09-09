@@ -21,6 +21,7 @@ end
 require "config" / "panda_init"
 
 dependencies 'activerecord', 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'mysql_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender'
+dependencies 'simple_video_module', 'mysql_video_module'
 
 # Not sure why dependencies won't load AWS::S3
 require 'aws/s3'
