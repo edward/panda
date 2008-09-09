@@ -113,10 +113,6 @@ module SimpleDB
     self.attributes = item.attributes
   end
   
-  def self.find_by_login(key)
-    find(key)
-  end
-
   def self.find(key)
     self.new(key, self.domain.get_attributes(key).attributes, false)
   end

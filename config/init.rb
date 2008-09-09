@@ -22,12 +22,14 @@ require "config" / "panda_init"
 
 dependencies 'activerecord', 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid', 'to_simple_xml', 'rog', 'amazon_sdb', 'simple_db', 'retryable', 'activesupport', 'rvideo', 'panda', 'gd_resize', 'map_to_hash', 'spec_eql_hash', 'error_sender'
 
-# ORM require. Simpledb Mysql
 
+# ORM require. Simpledb Mysql
 dependencies 'orm_setup'
 
-# Model Modules
-dependencies 'simpledb_modules/simple_video', 'mysql_modules/mysql_video'
+# Require ORM Modules - are placed in files names *orm*_modules
+mysql_depen = File.join(Merb.root, "lib", "*_modules", "*.rb")
+Dir.glob(mysql_depen).each {|file| require file}
+
 
 # Not sure why dependencies won't load AWS::S3
 require 'aws/s3'
