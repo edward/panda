@@ -1,4 +1,4 @@
-class User < MysqlDB::Base
+class User < ORM
 #  set_domain Panda::Config[:sdb_users_domain]
 #  properties :password, :email, :salt, :crypted_password, :api_key, :updated_at, :created_at
   set_table_name 'users'

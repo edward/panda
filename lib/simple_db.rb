@@ -1,4 +1,5 @@
-class SimpleDB
+# Note changed this name for stuff, MUST REMEMBER
+class SimpleDBs
   
   class Base
     attr_accessor :key, :attributes, :new_record

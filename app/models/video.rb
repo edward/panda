@@ -1,4 +1,4 @@
-class Video < ActiveRecord::Base
+class Video < ORM
   # Uncomment if your using SimpleDB
   
   #set_domain Panda::Config[:sdb_videos_domain]

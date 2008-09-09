@@ -34,6 +34,7 @@ module MySqlVideo
     end
   end
   
+  # Instance Method for Video Model
   module InstanceMethods
     def to_sym
       'videos'
