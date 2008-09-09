@@ -20,7 +20,20 @@ class ORM < ActiveRecord::Base
                                 :socket => "/tmp/mysql.sock")
   end
   
-  #=====================================================================
+  #================ActiveRecord Changes=========================
+  
+  # SimpleDB wants a key, so a little hack, TODO: make better
+  def key
+    self.id
+  end
+  
+  def self.save
+    updated_at = Time.now
+    created_at = Time.now if @new_record == true
+    @new_record = false
+    true
+  end
+  
 end
   
   include SimpleDB if Panda::Config[:database] == :simpledb
@@ -113,6 +126,10 @@ module SimpleDB
     self.attributes = item.attributes
   end
   
+  def self.find_by_login(key)
+    find(key)
+  end
+
   def self.find(key)
     self.new(key, self.domain.get_attributes(key).attributes, false)
   end

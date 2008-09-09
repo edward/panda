@@ -36,6 +36,7 @@ module MySqlVideo
   
   # Instance Method for Video Model
   module InstanceMethods
+    
     def to_sym
       'videos'
     end
@@ -248,7 +249,7 @@ module MySqlVideo
     end
 
     def read_metadata
-      Merb.logger.info "#{self.key}: Meading metadata of video file"
+      Merb.logger.info "#{self.key}: Reading metadata of video file"
 
       inspector = RVideo::Inspector.new(:file => self.tmp_filepath)
 

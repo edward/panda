@@ -61,10 +61,10 @@ class Videos < Application
   # Use: HQ, API
   def create
     provides :html, :xml, :yaml
-    @video = Video.create
+    @video = Video.new  #create Let's try new, as AR valid? command gets in the way
     @video.status = 'empty'
     @video.save
-    Merb.logger.info "#{@video.key}: Created video"
+    Merb.logger.info "#{@video.key}: Created video"   
     sleep 2
 
     case content_type
