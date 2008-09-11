@@ -51,7 +51,7 @@ module MySqlVideo
     # Only parent videos (no encodings)
 
     def parent_video
-      self.class.find(self.parent)
+      self.class.find_by_parent(self.parent)
     end
 
     def encodings
@@ -590,13 +590,16 @@ module MySqlVideo
         Merb.logger.info "(#{Time.now.to_s}) Encoding #{self.key}"
 
         parent_obj.fetch_from_s3
-
+        puts 'got from s3 whoop!'
         if self.container == "flv" and self.player == "flash"
+          puts 'flash time'
           self.encode_flv_flash
         elsif self.container == "mp4" and self.audio_codec == "aac" and self.player == "flash"
+          puts 'mp4 time'
           self.encode_mp4_aac_flash
         else # Try straight ffmpeg encode
           self.encode_unknown_format
+          puts 'have no idea time'
         end
 
         self.upload_to_s3
