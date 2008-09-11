@@ -240,17 +240,13 @@ module MySqlVideo
 
     def process
       self.valid?
-      puts 'valid'
       self.read_metadata
-      puts 'read meta'
       self.upload_to_s3
-      puts 'uploaded'
       self.add_to_queue
-      puts 'added_to_queue'
     end
 
     def valid?
-      raise NotValid unless self.empty?
+      #raise NotValid unless self.empty?
       return true
     end
 
@@ -258,9 +254,9 @@ module MySqlVideo
       Merb.logger.info "#{self.key}: Reading metadata of video file"
 
       inspector = RVideo::Inspector.new(:file => self.tmp_filepath)
-      puts 'made it here'
+      
       raise FormatNotRecognised unless inspector.valid? and inspector.video?
-      puts '1'
+      
       self.duration = (inspector.duration rescue nil)
       self.container = (inspector.container rescue nil)
       self.width = (inspector.width rescue nil)
@@ -281,25 +277,29 @@ module MySqlVideo
       puts 'stated encoded for profile'
       encoding = Video.new
       encoding.status = 'queued'
+      encoding.save   # ID isn't created on new but on save, video.key == video.id so we save now and save later
       puts 'status added'
       puts encoding.key
       puts p.container
       encoding.filename = "#{encoding.key}.#{p.container}"
       puts 'filename done'
       # Attrs from the parent video
-      encoding.parent = self.key
+      puts encoding.parent = self.key
       [:original_filename, :duration].each do |k|
-        encoding.send("#{k}=", self.get(k))
+        puts encoding.send("#{k}=", self.get(k))
       end
       puts 'done here'
       # Attrs from the profile
       encoding.profile = p.key
+      puts 'over here'
       encoding.profile_title = p.title
+      puts 'here now'
       [:container, :width, :height, :video_codec, :video_bitrate, :fps, :audio_codec, :audio_bitrate, :audio_sample_rate, :player].each do |k|
         encoding.send("#{k}=", p.get(k))
       end
       puts 'done there'
       encoding.save
+      puts 'whoop saved'
       return encoding
     end
 

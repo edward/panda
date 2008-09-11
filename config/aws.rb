@@ -1,11 +1,11 @@
 case Panda::Config[:database]
   when :simpledb
-    ORM.establish_simpledb_connection!(
+    Connections.establish_simpledb_connection!(
       :access_key_id     => Panda::Config[:access_key_id],
       :secret_access_key => Panda::Config[:secret_access_key]
     )
   when :mysql
-    ORM.establish_mysql_connection!
+    Connections.establish_mysql_connection!
 end
 
 AWS::S3::Base.establish_connection!(

@@ -1,4 +1,4 @@
-class Profile < ORM
+class Profile < ActiveRecord::Base
   # Uncomment if your using MySQL
   set_table_name 'profiles'
   

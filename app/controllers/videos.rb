@@ -95,21 +95,14 @@ class Videos < Application
     provides :html#, :xml, :yaml, :json
     
     begin
-      puts 'begin'
       raise Video::NoFileSubmitted if !params[:file] || params[:file].blank?
       @video = Video.find(params[:id])
-      puts 'found'
       @video.filename = @video.key.to_s + File.extname(params[:file][:filename])    # I'm an idiot, key == id so needs to be changes to string
-      puts 'now'
       FileUtils.mv params[:file][:tempfile].path, @video.tmp_filepath
-      puts 'mv'
       puts @video.original_filename = params[:file][:filename].split("\\\\").last # Split out any directory path Windows adds in
-      puts 'here2'
       @video.process
-      puts 'here3'
       @video.status = "original"
       @video.save
-      puts 'here1'
     rescue Amazon::SDB::RecordNotFoundError # No empty video object exists
       self.status = 404
       render_error($!.to_s.gsub(/Amazon::SDB::/,""))
@@ -124,7 +117,7 @@ class Videos < Application
       render_error("InternalServerError") # TODO: Use this generic error in production
     else
       case content_type
-      when :html  
+      when :htmls  
         # Special internal Panda case: textarea hack to get around the fact that the form is submitted with a hidden iframe and thus the response is rendered in the iframe
         if params[:iframe] == "true"
           "<textarea>" + {:location => @video.upload_redirect_url}.to_json + "</textarea>"
