@@ -14,7 +14,7 @@ http {
                 root /usr/local/www/panda;
 
                 location / {
-                        proxy_pass http://127.0.0.1:4001;
+                        proxy_pass http://127.0.0.1:4001;	
 #                       proxy_redirect default;
                         track_uploads proxied 30s;
                         client_max_body_size 500m;

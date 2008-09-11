@@ -24,7 +24,7 @@ dependencies 'activerecord', 'merb-assets', 'merb-mailer', 'merb_helpers', 'uuid
 
 
 # ORM require. Simpledb Mysql
-dependencies 'orm_setup'
+dependencies 'orm_setup', 'rack'
 
 # Require ORM Modules - are placed in files names *orm*_modules
 mysql_depen = File.join(Merb.root, "lib", "*_modules", "*.rb")

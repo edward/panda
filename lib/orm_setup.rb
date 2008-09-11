@@ -1,5 +1,5 @@
 # This is just a quick fix!
-
+# Note: could - model inherit ar then include ORM? it doesnt play nice the current way
 class ORM < ActiveRecord::Base
   attr_accessor :key, :attributes, :new_record
   
@@ -30,8 +30,14 @@ class ORM < ActiveRecord::Base
   def self.save
     updated_at = Time.now
     created_at = Time.now if @new_record == true
-    @new_record = false
-    true
+    super
+    puts 'saved!'
+    #@new_record = false
+    #true
+  end
+  
+  def self.query(query_options={})
+    find(:all) if query_options.empty?    # Hack for 'query' from SimepleDB
   end
   
 end

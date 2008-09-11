@@ -162,10 +162,12 @@ module MySqlVideo
     # ==
 
     def upload_to_s3
+      puts 'made to s3 upload'
       begin
         retryable(:tries => 5) do
           Merb.logger.info "Upload to S3"
           S3VideoObject.store(self.filename, File.open(self.tmp_filepath), :access => :public_read)
+          puts 'it should be on'
           sleep 3
         end
       rescue
@@ -238,9 +240,13 @@ module MySqlVideo
 
     def process
       self.valid?
+      puts 'valid'
       self.read_metadata
+      puts 'read meta'
       self.upload_to_s3
+      puts 'uploaded'
       self.add_to_queue
+      puts 'added_to_queue'
     end
 
     def valid?
@@ -252,9 +258,9 @@ module MySqlVideo
       Merb.logger.info "#{self.key}: Reading metadata of video file"
 
       inspector = RVideo::Inspector.new(:file => self.tmp_filepath)
-
+      puts 'made it here'
       raise FormatNotRecognised unless inspector.valid? and inspector.video?
-
+      puts '1'
       self.duration = (inspector.duration rescue nil)
       self.container = (inspector.container rescue nil)
       self.width = (inspector.width rescue nil)
@@ -272,23 +278,27 @@ module MySqlVideo
     end
 
     def create_encoding_for_profile(p)
+      puts 'stated encoded for profile'
       encoding = Video.new
       encoding.status = 'queued'
+      puts 'status added'
+      puts encoding.key
+      puts p.container
       encoding.filename = "#{encoding.key}.#{p.container}"
-
+      puts 'filename done'
       # Attrs from the parent video
       encoding.parent = self.key
       [:original_filename, :duration].each do |k|
         encoding.send("#{k}=", self.get(k))
       end
-
+      puts 'done here'
       # Attrs from the profile
       encoding.profile = p.key
       encoding.profile_title = p.title
       [:container, :width, :height, :video_codec, :video_bitrate, :fps, :audio_codec, :audio_bitrate, :audio_sample_rate, :player].each do |k|
         encoding.send("#{k}=", p.get(k))
       end
-
+      puts 'done there'
       encoding.save
       return encoding
     end
@@ -296,20 +306,24 @@ module MySqlVideo
     # TODO: Breakout Profile adding into a different method
     def add_to_queue
       # Die if there's no profiles!
+      puts 'check for profiles'
       if Profile.query.empty?
         Merb.logger.error "There are no encoding profiles!"
         return nil
       end
-
+      puts 'almost there'
       # TODO: Allow manual selection of encoding profiles used in both form and api
       # For now we will just encode to all available profiles
       Profile.query.each do |p|
-        if self.find_encoding_for_profile(p).empty?
-          self.create_encoding_for_profile(p)
-        end
+        puts 'check'
+#        if Encoding.find_encoding_for_profile(p).empty?   # Bit confused here so'll just delete and see what happends - original - self.find_encoding_for_profile(p).empty?
+        self.create_encoding_for_profile(p)
+#        end
       end
+      puts 'all done add_queue'
       return true
     end
+    
 
     # Exceptions
 

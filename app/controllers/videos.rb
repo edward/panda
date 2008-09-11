@@ -95,14 +95,21 @@ class Videos < Application
     provides :html#, :xml, :yaml, :json
     
     begin
+      puts 'begin'
       raise Video::NoFileSubmitted if !params[:file] || params[:file].blank?
       @video = Video.find(params[:id])
-      @video.filename = @video.key + File.extname(params[:file][:filename])
+      puts 'found'
+      @video.filename = @video.key.to_s + File.extname(params[:file][:filename])    # I'm an idiot, key == id so needs to be changes to string
+      puts 'now'
       FileUtils.mv params[:file][:tempfile].path, @video.tmp_filepath
-      @video.original_filename = params[:file][:filename].split("\\\\").last # Split out any directory path Windows adds in
+      puts 'mv'
+      puts @video.original_filename = params[:file][:filename].split("\\\\").last # Split out any directory path Windows adds in
+      puts 'here2'
       @video.process
+      puts 'here3'
       @video.status = "original"
       @video.save
+      puts 'here1'
     rescue Amazon::SDB::RecordNotFoundError # No empty video object exists
       self.status = 404
       render_error($!.to_s.gsub(/Amazon::SDB::/,""))
