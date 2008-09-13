@@ -51,7 +51,7 @@ module MySqlVideo
     # Only parent videos (no encodings)
 
     def parent_video
-      self.class.find_by_parent(self.parent)
+      self.class.find(self.parent)
     end
 
     def encodings
@@ -209,19 +209,29 @@ module MySqlVideo
         true
       end
     end
-
+    
     def capture_thumbnail_and_upload_to_s3
+      puts 'got here'
       screenshot_tmp_filepath = self.tmp_filepath + ".jpg"
+      puts 'done that'
       thumbnail_tmp_filepath = self.tmp_filepath + "_thumb.jpg"
+      puts 'and that'
 
       t = RVideo::Inspector.new(:file => self.tmp_filepath)
-      t.capture_frame('50%', screenshot_tmp_filepath)
+      puts 'inspected'
+      puts self.tmp_filepath
+      puts t.capture_frame('50%', screenshot_tmp_filepath)
+      puts 'captured'
 
       constrain_to_height = Panda::Config[:thumbnail_height_constrain].to_f
+      puts 'whoa'
       width = (self.width.to_f/(self.height.to_f/constrain_to_height)).to_i
+      puts 'width'
       height = constrain_to_height.to_i
+      puts 'height'
 
       GDResize.new.resize(screenshot_tmp_filepath, thumbnail_tmp_filepath, [width,height])
+      puts 'GD resize'
 
       begin
         retryable(:tries => 5) do
@@ -590,27 +600,22 @@ module MySqlVideo
         Merb.logger.info "(#{Time.now.to_s}) Encoding #{self.key}"
 
         parent_obj.fetch_from_s3
-        puts 'got from s3 whoop!'
         if self.container == "flv" and self.player == "flash"
-          puts 'flash time'
           self.encode_flv_flash
         elsif self.container == "mp4" and self.audio_codec == "aac" and self.player == "flash"
-          puts 'mp4 time'
           self.encode_mp4_aac_flash
         else # Try straight ffmpeg encode
           self.encode_unknown_format
-          puts 'have no idea time'
         end
 
         self.upload_to_s3
         self.capture_thumbnail_and_upload_to_s3
-
+        puts 'finished all that'
         self.notification = 0
         self.status = "success"
         self.encoded_at = Time.now
         self.encoding_time = (Time.now - begun_encoding).to_i
         self.save
-
         Merb.logger.info "Removing tmp video files"
         FileUtils.rm self.tmp_filepath
         FileUtils.rm parent_obj.tmp_filepath
