@@ -16,7 +16,7 @@ Merb::Config.use do |c|
   c[:session_store] = 'cookie'
 end
 
-use_orm :activerecord
+#use_orm :activerecord
 
 require "config" / "panda_init"
 

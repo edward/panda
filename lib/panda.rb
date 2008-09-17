@@ -20,8 +20,8 @@ module Panda
           :account_name           => "My Panda Account",
           :api_key                => nil,
           :notification_email     => nil,
-          :upload_redirect_url    => "http://127.0.0.1:3000/videos/$1/done",
-          :state_update_url       => "http://127.0.0.1:3000/videos/$1/status",
+          :upload_redirect_url    => "http://127.0.0.1:4000/videos/$1/done",
+          :state_update_url       => "http://127.0.0.1:4000/videos/$1/status",
           :videos_domain          => nil,
           :storage                => :filesystem, # or :s3 TODO: implement
           :thumbnail_height_constrain => 126,
