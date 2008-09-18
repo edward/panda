@@ -55,7 +55,7 @@ module MySqlVideo
     end
 
     def encodings
-      self.class.query("['parent' = '#{self.key}']")
+      self.class.find(:all, :conditions => ["parent = #{self.key}"])
     end
 
     def find_encoding_for_profile(p)
