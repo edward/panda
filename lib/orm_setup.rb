@@ -16,8 +16,7 @@ class Connections
                                 :username => "root",
                                 :password => "",
                                 :encoding => "utf8",
-                                :database => "panda_development",
-                                :socket => "/tmp/mysql.sock")
+                                :database => "panda_development")
   end
 end
 
