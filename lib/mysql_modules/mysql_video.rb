@@ -162,12 +162,10 @@ module MySqlVideo
     # ==
 
     def upload_to_s3
-      puts 'made to s3 upload'
       begin
         retryable(:tries => 5) do
           Merb.logger.info "Upload to S3"
           S3VideoObject.store(self.filename, File.open(self.tmp_filepath), :access => :public_read)
-          puts 'it should be on'
           sleep 3
         end
       rescue
@@ -211,27 +209,18 @@ module MySqlVideo
     end
     
     def capture_thumbnail_and_upload_to_s3
-      puts 'got here'
       screenshot_tmp_filepath = self.tmp_filepath + ".jpg"
-      puts 'done that'
       thumbnail_tmp_filepath = self.tmp_filepath + "_thumb.jpg"
-      puts 'and that'
 
       t = RVideo::Inspector.new(:file => self.tmp_filepath)
-      puts 'inspected'
       puts self.tmp_filepath
       puts t.capture_frame('50%', screenshot_tmp_filepath)
-      puts 'captured'
 
       constrain_to_height = Panda::Config[:thumbnail_height_constrain].to_f
-      puts 'whoa'
       width = (self.width.to_f/(self.height.to_f/constrain_to_height)).to_i
-      puts 'width'
       height = constrain_to_height.to_i
-      puts 'height'
 
       GDResize.new.resize(screenshot_tmp_filepath, thumbnail_tmp_filepath, [width,height])
-      puts 'GD resize'
 
       begin
         retryable(:tries => 5) do
@@ -284,53 +273,41 @@ module MySqlVideo
     end
 
     def create_encoding_for_profile(p)
-      puts 'stated encoded for profile'
       encoding = Video.new
       encoding.status = 'queued'
       encoding.save   # ID isn't created on new but on save, video.key == video.id so we save now and save later
-      puts 'status added'
-      puts encoding.key
-      puts p.container
       encoding.filename = "#{encoding.key}.#{p.container}"
-      puts 'filename done'
+      
       # Attrs from the parent video
       puts encoding.parent = self.key
       [:original_filename, :duration].each do |k|
         puts encoding.send("#{k}=", self.get(k))
       end
-      puts 'done here'
+
       # Attrs from the profile
       encoding.profile = p.key
-      puts 'over here'
       encoding.profile_title = p.title
-      puts 'here now'
       [:container, :width, :height, :video_codec, :video_bitrate, :fps, :audio_codec, :audio_bitrate, :audio_sample_rate, :player].each do |k|
         encoding.send("#{k}=", p.get(k))
       end
-      puts 'done there'
       encoding.save
-      puts 'whoop saved'
       return encoding
     end
 
     # TODO: Breakout Profile adding into a different method
     def add_to_queue
       # Die if there's no profiles!
-      puts 'check for profiles'
       if Profile.query.empty?
         Merb.logger.error "There are no encoding profiles!"
         return nil
       end
-      puts 'almost there'
       # TODO: Allow manual selection of encoding profiles used in both form and api
       # For now we will just encode to all available profiles
       Profile.query.each do |p|
-        puts 'check'
 #        if Encoding.find_encoding_for_profile(p).empty?   # Bit confused here so'll just delete and see what happends - original - self.find_encoding_for_profile(p).empty?
         self.create_encoding_for_profile(p)
 #        end
       end
-      puts 'all done add_queue'
       return true
     end
     
@@ -610,7 +587,6 @@ module MySqlVideo
 
         self.upload_to_s3
         self.capture_thumbnail_and_upload_to_s3
-        puts 'finished all that'
         self.notification = 0
         self.status = "success"
         self.encoded_at = Time.now
