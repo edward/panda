@@ -85,11 +85,11 @@ module MySqlVideo
     end
 
     def upload_redirect_url
-      Panda::Config[:upload_redirect_url].gsub(/\$id/,self.key)
+      Panda::Config[:upload_redirect_url].gsub(/\$id/,self.key.to_s)
     end
 
     def state_update_url
-      Panda::Config[:state_update_url].gsub(/\$id/,self.key)
+      Panda::Config[:state_update_url].gsub(/\$id/,self.key.to_s)
     end
 
     def duration_str
