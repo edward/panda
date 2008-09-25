@@ -97,7 +97,7 @@ class Videos < Application
     begin
       raise Video::NoFileSubmitted if !params[:file] || params[:file].blank?
       @video = Video.find(params[:id])
-      @video.filename = @video.key.to_s + File.extname(params[:file][:filename])    # I'm an idiot, key == id so needs to be changes to string
+      @video.filename = @video.key.to_s + File.extname(params[:file][:filename])    # I'm an idiot, key == id so needs to be changed to string
       FileUtils.mv params[:file][:tempfile].path, @video.tmp_filepath
       puts @video.original_filename = params[:file][:filename].split("\\\\").last # Split out any directory path Windows adds in
       @video.process
