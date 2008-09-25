@@ -379,33 +379,42 @@ module MySqlVideo
       self.last_notification_at = Time.now
       begin
         self.parent_video.send_status_update_to_client
+        puts '2'
         self.notification = 'success'
+        puts '3'
         self.save
+        puts '4'
         Merb.logger.info "Notification successfull"
       rescue
         # Increment num retries
+        puts '5'
         if self.notification.to_i >= Panda::Config[:notification_retries]
+          puts '6'
           self.notification = 'error'
         else
+          puts '7'
           self.notification = self.notification.to_i + 1
         end
         self.save
         raise
+        puts 'nah'
       end
     end
 
     def send_status_update_to_client
       Merb.logger.info "Sending notification to #{self.state_update_url}"
-
+      puts 'q'
       params = {"video" => self.show_response.to_yaml}
-
+      puts 'r'
       uri = URI.parse(self.state_update_url)
+      puts 'p'
       http = Net::HTTP.new(uri.host, uri.port)
-
+      puts 'n'
+      
       req = Net::HTTP::Post.new(uri.path)
       req.form_data = params
       response = http.request(req)
-
+      puts 'yer'
       unless response.code.to_i == 200# and response.body.match /ok/
         ErrorSender.log_and_email("notification error", "Error sending notification for parent video #{self.key} to #{self.state_update_url} (POST)
 
