@@ -378,6 +378,7 @@ module MySqlVideo
 
       self.last_notification_at = Time.now
       begin
+        puts '1'
         self.parent_video.send_status_update_to_client
         puts '2'
         self.notification = 'success'
@@ -415,6 +416,7 @@ module MySqlVideo
       req.form_data = params
       response = http.request(req)
       puts 'yer'
+      puts respond.code.to_i
       unless response.code.to_i == 200# and response.body.match /ok/
         ErrorSender.log_and_email("notification error", "Error sending notification for parent video #{self.key} to #{self.state_update_url} (POST)
 
@@ -427,6 +429,7 @@ module MySqlVideo
 
         raise NotificationError
       end
+      puts 'made'
     end
 
     # Encoding
