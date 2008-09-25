@@ -406,6 +406,7 @@ module MySqlVideo
       Merb.logger.info "Sending notification to #{self.state_update_url}"
       puts 'q'
       params = {"video" => self.show_response.to_yaml}
+      puts params
       puts 'r'
       uri = URI.parse(self.state_update_url)
       puts 'p'
