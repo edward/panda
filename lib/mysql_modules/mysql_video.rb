@@ -26,7 +26,7 @@ module MySqlVideo
     end
 
     def outstanding_notifications
-      find(:all, :conditions => ["notification != 'success' and notification != 'error' and status = 'success' or status = 'error'"]) #  sort 'last_notification_at' asc
+      find(:all, :conditions => ["'notification' != 'success' AND 'notification' != 'error' AND status = 'success' OR status = 'error'"]) #  sort 'last_notification_at' asc
     end
 
     def recently_completed_videos
@@ -378,19 +378,27 @@ module MySqlVideo
 
       self.last_notification_at = Time.now
       begin
+        puts '1'
         self.parent_video.send_status_update_to_client
+        puts '2'
         self.notification = 'success'
+        puts '3'
         self.save
+        puts '4'
         Merb.logger.info "Notification successfull"
       rescue
         # Increment num retries
+        puts '5'
         if self.notification.to_i >= Panda::Config[:notification_retries]
+          puts '6'
           self.notification = 'error'
         else
+          puts '7'
           self.notification = self.notification.to_i + 1
         end
         self.save
         raise
+        puts 'nah'
       end
     end
 
