@@ -381,7 +381,7 @@ module MySqlVideo
         puts '1'
         self.parent_video.send_status_update_to_client
         puts '2'
-        self.notification = 'success'
+        #self.notification = 'success'    #just for testing!!!!!!!
         puts '3'
         self.save
         puts '4'
@@ -416,7 +416,6 @@ module MySqlVideo
       req = Net::HTTP::Post.new(uri.path)
       req.form_data = params
       response = http.request(req)
-      puts YAML.load(params['video'])[:video]
       puts response.code.to_i
       unless response.code.to_i == 200# and response.body.match /ok/
         ErrorSender.log_and_email("notification error", "Error sending notification for parent video #{self.key} to #{self.state_update_url} (POST)
