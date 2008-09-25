@@ -416,7 +416,7 @@ module MySqlVideo
       req = Net::HTTP::Post.new(uri.path)
       req.form_data = params
       response = http.request(req)
-      puts 'yer'
+      puts YAML.load(params[:video])[:video]
       puts response.code.to_i
       unless response.code.to_i == 200# and response.body.match /ok/
         ErrorSender.log_and_email("notification error", "Error sending notification for parent video #{self.key} to #{self.state_update_url} (POST)
