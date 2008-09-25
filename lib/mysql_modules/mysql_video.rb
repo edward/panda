@@ -416,7 +416,7 @@ module MySqlVideo
       req.form_data = params
       response = http.request(req)
       puts 'yer'
-      puts respond.code.to_i
+      puts response.code.to_i
       unless response.code.to_i == 200# and response.body.match /ok/
         ErrorSender.log_and_email("notification error", "Error sending notification for parent video #{self.key} to #{self.state_update_url} (POST)
 
