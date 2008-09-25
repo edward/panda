@@ -381,7 +381,7 @@ module MySqlVideo
         puts '1'
         self.parent_video.send_status_update_to_client
         puts '2'
-        #self.notification = 'success'    #just for testing!!!!!!!
+        self.notification = 'success'  
         puts '3'
         self.save
         puts '4'
