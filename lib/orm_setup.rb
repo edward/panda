@@ -30,7 +30,7 @@ module ORM
   
   # SimpleDB wants a key, so a little hack, TODO: make better, simple, huh?
   def key
-    self.id
+    self.id.to_s
   end
   
   def get(key)

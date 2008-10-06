@@ -19,7 +19,7 @@ private
     case (params[:format] || "html")
     when "html"
       begin
-        @user = User.find_by_login(session[:user_key]) if session[:user_key]
+        @user = User.find(session[:user_key]) if session[:user_key]
       rescue Amazon::SDB::RecordNotFoundError
         session[:user_key] = nil
         @user = nil

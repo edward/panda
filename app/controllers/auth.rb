@@ -7,7 +7,7 @@ class Auth < Application
     
     if request.post?
       if found_user = User.authenticate(params[:user][:login], params[:user][:password])
-        session[:user_key] = found_user.login # AKA @user.key
+        session[:user_key] = found_user.key # AKA @user.key
         redirect "/"
       else
         @user.login = params[:user][:login] # The login is the key of our SDB record
