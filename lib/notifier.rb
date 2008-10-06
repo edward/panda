@@ -1,8 +1,10 @@
 # merb -r "panda/lib/notifier.rb"
 
-# How notifications work:
-# Once a video has been encoded its next_notification field will be set to the current time. It will then be returned by Video.outstanding_notifications and picked up by the notifier, which will then call send_notification on its parent.
-# A notification will be sent to the client with the full details for the parent and all of its encoding. The response will be checked for presence of the word 'success' and a 200 response. If both are are not returned an error will be logged, and the next_notification field set to a few seconds in the future. Further notifications will be sent until success is returned from the client.
+# How notification works:
+# 
+# Once a video has been encoded, its next_notification field is set to the current time and returned by Video.outstanding_notifications, which is picked up by the notifier, which calls send_notification on its parent.
+# 
+# A notification is sent to the client with full details for the parent and all of its encoding. The response is checked for the string 'success' and a 200 response. If both are are not returned, an error is logged, and the next_notification field set to a few seconds in the future. Further notifications are sent until success is returned from the client.
 
 Merb.logger.info 'Notifier awake!'
 loop do

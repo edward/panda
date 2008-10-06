@@ -3,7 +3,7 @@ module MySqlUser
   module ClassMethods
     
     def authenticate(login, password)
-      unless  u = self.find_by_login(login) 
+      unless u = self.find_by_login(login)
         return nil
       else
         puts "#{u.crypted_password} | #{encrypt(password, u.salt)}"

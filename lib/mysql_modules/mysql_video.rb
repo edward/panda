@@ -5,7 +5,7 @@ module MySqlVideo
     # Finders
     
     def all
-      find(:all, :conditions => ["status = 'original' and created_at != ''"], :order => 'created_at  desc')
+      find(:all, :conditions => ["status = 'original' and created_at != ''"], :order => 'created_at desc')
     end
 
     def recent_videos
@@ -125,7 +125,7 @@ module MySqlVideo
       %(http://#{Panda::Config[:videos_domain]}/#{self.thumbnail})
     end
 
-    # Encding attr helpers
+    # Encoding attr helpers
     # ====================
 
     def url
@@ -296,7 +296,7 @@ module MySqlVideo
 
     # TODO: Breakout Profile adding into a different method
     def add_to_queue
-      # Die if there's no profiles!
+      # Die if there aren't any profiles
       if Profile.query.empty?
         Merb.logger.error "There are no encoding profiles!"
         return nil
@@ -346,7 +346,7 @@ module MySqlVideo
         r[:video][:encodings] = self.encodings.map {|e| e.show_response}
       end
 
-      # Reutrn extra attributes if the video is an encoding
+      # Return extra attributes if the video is an encoding
       if self.encoding?
         r[:video].merge!([:parent, :profile, :profile_title, :encoded_at, :encoding_time].map_to_hash {|k| {k => self.send(k)} })
       end
@@ -445,7 +445,7 @@ module MySqlVideo
       begin
         aspect = in_w / in_h
       rescue
-        Merb.logger.error "Couldn't do w/h to caculate aspect. Just using the output resolution now."
+        Merb.logger.error "Couldn't do w/h to calculate aspect. Just using the output resolution now."
         return %(-s #{self.width}x#{self.height})
       end
 
@@ -479,7 +479,7 @@ module MySqlVideo
         aspect = in_w / in_h
         aspect_inv = in_h / in_w
       rescue
-        Merb.logger.error "Couldn't do w/h to caculate aspect. Just using the output resolution now."
+        Merb.logger.error "Couldn't do w/h to calculate aspect. Just using the output resolution now."
         return %(-s #{self.width}x#{self.height} )
       end
 
