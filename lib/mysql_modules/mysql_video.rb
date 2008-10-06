@@ -13,7 +13,7 @@ module MySqlVideo
     end
 
     def recent_encodings
-      find(:all, :conditions => ["status = 'sucess'"], :limit => 10)
+      find(:all, :conditions => ["status = 'success'"], :limit => 10)
     end
 
     def queued_encodings
