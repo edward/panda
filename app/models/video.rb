@@ -253,7 +253,7 @@ class Video < SimpleDB::Base
   end
   
   # Uploads video to store, generates thumbnails if required, cleans up 
-  # tempoary file, and adds encodings to the encoding queue.
+  # temporary file, and adds encodings to the encoding queue.
   # 
   def finish_processing_and_queue_encodings
     self.upload_to_store
@@ -322,8 +322,8 @@ class Video < SimpleDB::Base
   
   # TODO: Breakout Profile adding into a different method
   def add_to_queue
-    # Die if there's no profiles!
-    if Profile.query.empty?
+    # Die if there aren't any profiles
+    if Profile.all.empty?
       Merb.logger.error "There are no encoding profiles!"
       return nil
     end
@@ -557,38 +557,8 @@ RESPONSE
   def encode_mp4_aac_flash
     Merb.logger.info "Encoding with encode_mp4_aac_flash"
     transcoder = RVideo::Transcoder.new
-    # Just the video without audio
-    temp_video_output_file = "#{self.tmp_filepath}.temp.video.mp4"
-    temp_audio_output_file = "#{self.tmp_filepath}.temp.audio.mp4"
-    temp_audio_output_wav_file = "#{self.tmp_filepath}.temp.audio.wav"
-
-    recipe = "ffmpeg -i $input_file$ -b $video_bitrate_in_bits$ -an -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$"
-    recipe_audio_extraction = "ffmpeg -i $input_file$ -ar 48000 -ac 2 -y $output_file$"
-
-    transcoder.execute(recipe, self.recipe_options(self.parent_video.tmp_filepath, temp_video_output_file))
-    
-    Merb.logger.info "Video encoding done"
-    unless self.parent_video.audio_codec.blank?
-      # We have to use nero to encode the audio as ffmpeg doens't support HE-AAC yet
-      transcoder.execute(recipe_audio_extraction, recipe_options(self.parent_video.tmp_filepath, temp_audio_output_wav_file))
-      Merb.logger.info "Audio extraction done"
-
-      # Convert to HE-AAC
-      %x(neroAacEnc -br #{self.audio_bitrate_in_bits} -he -if #{temp_audio_output_wav_file} -of #{temp_audio_output_file})
-      Merb.logger.info "Audio encoding done"
-
-      # Squash the audio and video together
-      FileUtils.rm(self.tmp_filepath) if File.exists?(self.tmp_filepath) # rm, otherwise we end up with multiple video streams when we encode a few times!!
-      %x(MP4Box -add #{temp_video_output_file}#video #{self.tmp_filepath})
-      %x(MP4Box -add #{temp_audio_output_file}#audio #{self.tmp_filepath})
-
-      # Interleave meta data
-      %x(MP4Box -inter 500 #{self.tmp_filepath})
-      Merb.logger.info "Squashing done"
-    else
-      Merb.logger.info "This video does't have an audio stream"
-      FileUtils.mv(temp_video_output_file, self.tmp_filepath)
-    end
+    recipe = "ffmpeg -i $input_file$ -acodec libfaac -ar 48000 -ab $audio_bitrate$k -ac 2 -b $video_bitrate_in_bits$ -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$"
+    transcoder.execute(recipe, self.recipe_options(self.parent_video.tmp_filepath, self.tmp_filepath))
   end
   
   def encode_unknown_format
