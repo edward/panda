@@ -11,7 +11,7 @@ dependency "dm-core", dm_gems_version
 dependency 'dm-timestamps', dm_gems_version
 dependency "merb_datamapper", merb_gems_version
 
-dependency 'uuid', '2.0.1'
+dependency 'uuid', '1.0.4'
 dependency 'amazon_sdb'
 dependency 'activesupport', '2.1.1'
 dependency 'rvideo'
