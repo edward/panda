@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 Gem::Specification.new do |s|
   s.name = %q{hpricot}
   s.version = "0.6.161"
@@ -14,14 +16,14 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://code.whytheluckystiff.net/hpricot/}
   s.rdoc_options = ["--quiet", "--title", "The Hpricot Reference", "--main", "README", "--inline-source"]
   s.require_paths = ["lib/universal-darwin9.0", "lib"]
-  s.rubygems_version = %q{1.2.0}
+  s.rubygems_version = %q{1.3.0}
   s.summary = %q{a swift, liberal HTML parser with a fantastic library}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 2
 
-    if current_version >= 3 then
+    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
     else
     end
   else

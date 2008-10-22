@@ -1,0 +1,11 @@
+ext/fast_xs/Makefile
+ext/fast_xs/fast_xs.bundle
+ext/fast_xs/fast_xs.o
+ext/fast_xs/mkmf.log
+ext/hpricot_scan/Makefile
+ext/hpricot_scan/hpricot_scan.bundle
+ext/hpricot_scan/hpricot_scan.c
+ext/hpricot_scan/hpricot_scan.java.java
+ext/hpricot_scan/hpricot_scan.o
+ext/hpricot_scan/mkmf.log
+lib/universal-darwin9.0
