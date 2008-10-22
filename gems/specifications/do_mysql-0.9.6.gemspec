@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 Gem::Specification.new do |s|
   s.name = %q{do_mysql}
   s.version = "0.9.6"
@@ -14,14 +16,14 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--main", "README.txt"]
   s.require_paths = ["lib", "ext"]
   s.rubyforge_project = %q{dorb}
-  s.rubygems_version = %q{1.2.0}
+  s.rubygems_version = %q{1.3.0}
   s.summary = %q{A DataObject.rb driver for MySQL}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 2
 
-    if current_version >= 3 then
+    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<data_objects>, ["= 0.9.6"])
       s.add_development_dependency(%q<hoe>, [">= 1.7.0"])
     else

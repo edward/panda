@@ -1,0 +1,5 @@
+ext/Makefile
+ext/mkmf.log
+ext/do_mysql_ext.bundle
+ext/do_mysql_ext.o
+lib/do_mysql_ext.bundle
