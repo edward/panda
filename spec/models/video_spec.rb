@@ -665,17 +665,8 @@ describe Video do
     RVideo::Transcoder.should_receive(:new).and_return(transcoder)
     
     transcoder.should_receive(:execute).with(
-      "ffmpeg -i $input_file$ -b $video_bitrate_in_bits$ -an -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$", nil) # No need to test the 2nd parameter for recepie options which is tested in another test
-    encoding.should_receive(:recipe_options).with('/tmp/abc.mov', '/tmp/xyz.mp4.temp.video.mp4')
-
-    # Testing separate audio extraction and encoding for flash h264
-    transcoder.should_receive(:execute).with(
-      "ffmpeg -i $input_file$ -ar 48000 -ac 2 -y $output_file$", nil)
-    encoding.should_receive(:recipe_options).with('/tmp/abc.mov', '/tmp/xyz.mp4.temp.audio.wav')
-
-    # rm video file before we use MP4Box, otherwise we end up with multiple AV streams if the videos has been encoded more than once!
-    File.should_receive(:exists?).with('/tmp/xyz.mp4').and_return(true)
-    FileUtils.should_receive(:rm).with('/tmp/xyz.mp4')
+      "ffmpeg -i $input_file$ -acodec libfaac -ar 48000 -ab $audio_bitrate$k -ac 2 -b $video_bitrate_in_bits$ -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$", nil) # No need to test the 2nd parameter for recepie options which is tested in another test
+    encoding.should_receive(:recipe_options).with('/tmp/abc.mov', '/tmp/xyz.mp4')
     
     encoding.encode_mp4_aac_flash
   end
