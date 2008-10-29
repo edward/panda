@@ -11,11 +11,15 @@ dependency "dm-core", dm_gems_version
 dependency 'dm-timestamps', dm_gems_version
 dependency "merb_datamapper", merb_gems_version
 
-dependency 'uuid', '1.0.4'
-dependency 'amazon_sdb'
+dependency 'uuid', '2.0.1'
 dependency 'activesupport', '2.1.1'
 dependency 'rvideo'
+dependency 'aws-s3', '0.5.1' do
+  require 'aws/s3'
+end
+dependency 'aws-sdb', '0.3.1' do
+  require 'aws_sdb'
+end
 
 # Dependencies in lib - not autoloaded in time so require them explicitly
-require 'simple_db'
 require 'local_store'

@@ -2,7 +2,7 @@ class Video
   include DataMapper::Resource
   include LocalStore
   
-  property :id, String, :key => true
+  property :id, UUIDIndex, :key => true
   property :filename, String
   property :original_filename, String
   property :parent, String
@@ -25,7 +25,13 @@ class Video
   property :encoding_time, String
   property :encoded_at, String
   property :last_notification_at, Time
-  property :notification, String
+  # This is to fill the gap of different behavior between MySQL
+  # and SimpleDB in use of null.
+  # At MySQL, it won't pick up NULL: eg, notification.not 'success'
+  # If you try to search non nil: eg, notification.not = nil
+  # Then SimpleDB fails as Simpledb can not be searchable by nil
+  # As a workaround, I forced default as empty string
+  property :notification, String, :default => '', :nullable => false
   property :updated_at, Time
   property :created_at, Time
   property :thumbnail_position, String
@@ -36,7 +42,6 @@ class Video
   
   def self.create_empty
     video = Video.new
-    video.id = UUID.new
     video.status = 'empty'
     video.save
     
@@ -86,13 +91,13 @@ class Video
     # TODO: Doesn't work
     # self.first(:status => "queued")
     
-    self.all(:status => "queued").to_a.first
+    self.all(:status => "queued").sort_by { |o| o.created_at }.first
   end
   
   def self.outstanding_notifications
     # TODO: Do this in one query
     self.all(:notification.not => "success", :notification.not => "error", :status => "success") +
-    self.all(:notification.not => "success", :notification.not => "error", :status => "error")
+    self.all(:notification.not => "success", :notification.not => "error", :status => "error") 
   end
   
   def parent_video
@@ -320,7 +325,6 @@ class Video
   
   def create_encoding_for_profile(p)
     encoding = Video.new
-    encoding.id = UUID.new
     encoding.status = 'queued'
     encoding.filename = "#{encoding.id}.#{p.container}"
     

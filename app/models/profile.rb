@@ -1,7 +1,7 @@
 class Profile
   include DataMapper::Resource
   
-  property :id, String, :key => true
+  property :id, UUIDIndex, :key => true
   property :title, String
   property :player, String
   property :container, String

@@ -7,15 +7,16 @@ module Panda
         S3Store.create_bucket
       end
       
-      def create_sdb_domain(name)
-        SimpleDB::Base.connection.create_domain(name)
-      end
-      
-      def create_sdb_domains
-        %w{sdb_domain}.map do |d|
-          Panda::Setup.create_sdb_domain(Panda::Config[d.to_sym])
+      def create_sdb_domain
+        if DataMapper::Adapters.const_defined?(:SimpleDBAdapter) && DataMapper.repository.adapter.is_a?(DataMapper::Adapters::SimpleDBAdapter)
+          SDB_CONNECTION.create_domain(Panda::Config[:sdb_domain])
+        else
+          DataMapper.auto_migrate!
         end
       end
+      
+      # API compatibility
+      alias :create_sdb_domains :create_sdb_domain
     end
   end
 

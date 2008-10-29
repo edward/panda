@@ -1,10 +1,8 @@
 require File.join( File.dirname(__FILE__), "..", "spec_helper" )
 
 describe Video do
-  before :each do
-    @video = mock_video
-    @profile = mock_profile(:id => 'profile1')
-    
+  
+  before(:all) do
     Panda::Config.use do |p|
       p[:private_tmp_path] = '/tmp'
       p[:state_update_url] = "http://localhost:4000/videos/$id/status"
@@ -12,6 +10,11 @@ describe Video do
       p[:videos_domain] = "videos.pandastream.com"
       p[:thumbnail_height_constrain] = 125
     end
+  end
+  
+  before :each do
+    @video = mock_video
+    @profile = mock_profile(:id => 'profile1')
     
     Store.stub!(:set).and_return(true)
     Store.stub!(:delete).and_return(true)
@@ -27,9 +30,6 @@ describe Video do
       video.should be_empty
     end
 
-    after(:all) do
-      Video.all.each{|v| v.destroy }
-    end
   end
   
   describe "clipping" do
@@ -67,59 +67,118 @@ describe Video do
   end
   
   describe "Finders" do
-    
     before :all do
       @old = Time.now - 100
       @new = Time.now
       create_video(:status => 'original', :created_at => @old)
       create_video(:status => 'original', :created_at => @new)
       create_video(:status => 'pending', :created_at => @new)
-    end
-    
-    after(:all) do
-      Video.all.each{|v| v.destroy }
+      create_video(:status => 'processing', :created_at => @new)
+      create_video(:status => 'queued', :created_at => @new)
     end
     
     describe "self.all_originals" do
+    
+      before(:all) do
+        @originals = Video.all_originals
+      end
+      
       it "should return original video" do
-        Video.all_originals.should have(2).videos
+        @originals.each{|r| r.status.should == 'original'}
       end
       
       it "should order by created_at (newest first)" do
-        originals = Video.all_originals
-        originals.collect(&:created_at).should == 
-          originals.sort_by { |o| o.created_at }.reverse.collect(&:created_at)
+        @originals.collect(&:created_at).should == 
+          @originals.sort_by { |o| o.created_at }.reverse.collect(&:created_at)
       end
     end
 
     describe "self.queued_encodings" do
       it "should return videos in processing or queued" do
-        Video.should_receive(:all).with(:status => 'processing').
-                                   and_return([mock_video])
-        Video.should_receive(:all).with(:status => 'queued').
-                                   and_return([mock_video])
+        queued = Video.queued_encodings 
+        queued.each{|q| ['processing', 'queued'].should be_include(q.status)}
+      end
+    end
+    
+    describe "outstanding_notifications" do
+      it "should not return videos if notification status are set" do
+        lambda { 
+          create_video(:status => 'success', :notification => 'success')
+          create_video(:status => 'error', :notification => 'error')
+        }.should_not change { Video.outstanding_notifications.size }
+      end
+      
+      it "should return videos if notification status are empty" do
+        lambda { 
+          create_video(:status => 'success',:notification => '')
+          create_video(:status => 'error', :notification => '')
+        }.should change { Video.outstanding_notifications.size }.by(2)
+      end
 
-        Video.queued_encodings
+      it "should return videos if notification status are not set" do
+        lambda { 
+          create_video(:status => 'success')
+          create_video(:status => 'error')
+        }.should change { Video.outstanding_notifications.size }.by(2)
       end
     end
 
-    it "self.next_job" do
-      Video.should_receive(:all).with(:status => 'queued').and_return([])
-      Video.next_job
-    end
-
-    it "parent_video" do
-      @video.parent = 'xyz'
-      Video.should_receive(:get).with('xyz')
-
-      @video.parent_video
-    end
-
-    it "encodings" do 
-      Video.should_receive(:all).with(:parent => 'abc')
-      @video.encodings
+    describe "next_job" do
+      it "shoould return first queued encoding ordered by created date" do
+        vid2 = create_video(:status => 'queued', :created_at => 1.days.ago)
+        vid1 = create_video(:status => 'queued', :created_at => 2.days.ago)
+        Video.next_job.should == vid1
+      end
+      
+      it "should retun nil if there are no queued videos" do
+        Video.queued_encodings.each{|q| q.destroy}
+        Video.all.size.should > 0
+        Video.queued_encodings.size.should == 0
+        Video.next_job.should be_nil
+      end
     end
     
+    describe "parent_video" do
+      before(:all) do
+        @parent_video = Video.all_originals.first
+        @parent_video.save
+      end
+
+      it "should raise error if the video itself is parent" do
+        lambda { @parent_video.parent_video }.should
+         raise_error(RuntimeError, "Parent does not have parent")
+      end
+      
+      it "should return parent video where parent id matches" do
+        @video.parent = @parent_video.id
+        @video.status = 'queued'
+        @video.parent_video.should == @parent_video
+      end
+    end
+
+    describe "encodings" do
+      it "should return all videos which belongs to its parent " do 
+        create_encodings(@video.id, @profile, 3)
+        @video.encodings.should have(3).videos
+      end
+    end
+    
+    describe "successful_encodings" do
+      it "should return successful videos which belongs to its parent"  do
+        @video.id = UUID.generate
+        @video.save
+        create_encodings(@video.id, @profile, 3)
+        # Manually changing status from "queued" to "success"
+        @video.encodings.each{|v| v.status = 'success'; v.save}
+        # But leave one encoding as "error".
+        # NOTE: Need to convert to array (to_a) to be compatible for simpledb
+        error_encording = @video.encodings.to_a.first
+        error_encording.status = 'error'
+        error_encording.save
+        
+        @video.successful_encodings.should have(2).videos
+      end
+    end
   end
   
   # Attr helpers
@@ -665,7 +724,7 @@ describe Video do
     RVideo::Transcoder.should_receive(:new).and_return(transcoder)
     
     transcoder.should_receive(:execute).with(
-      "ffmpeg -i $input_file$ -acodec libfaac -ar 48000 -ab $audio_bitrate$k -ac 2 -b $video_bitrate_in_bits$ -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me_method hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$", nil) # No need to test the 2nd parameter for recepie options which is tested in another test
+      "ffmpeg -i $input_file$ -acodec libfaac -ar 48000 -ab $audio_bitrate$k -ac 2 -b $video_bitrate_in_bits$ -vcodec libx264 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me_method hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 $resolution_and_padding$ -r 24 -threads 4 -y $output_file$", nil) # No need to test the 2nd parameter for recipe options (tested in another test)
     encoding.should_receive(:recipe_options).with('/tmp/abc.mov', '/tmp/xyz.mp4')
     
     encoding.encode_mp4_aac_flash
@@ -723,7 +782,15 @@ describe Video do
   end
   
   def create_video(attrs = {})
-    mock_video(attrs.merge(:id => UUID.new)).save
+    returning(mock_video(attrs.merge(:id => (UUID.respond_to?(:generate) ? UUID.generate : UUID.new)))) do |vid|
+      vid.save
+    end
+  end
+  
+  def create_encodings(parent_id, profile, number)
+    number.times do
+      create_video(:parent => parent_id).create_encoding_for_profile(profile)
+    end
   end
   
   def mock_encoding_flv_flash(attrs={})

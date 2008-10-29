@@ -17,3 +17,5 @@ public/images/tmp/*jpg
 public/store
 public/tmp
 .autotest
+gems/gems/*/ext
+*.bundle
